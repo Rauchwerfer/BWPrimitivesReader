@@ -9,13 +9,13 @@ namespace BWPrimitivesReader.BinaryDataSections
     [Serializable]
     public class BSP2MaterialsSection : BinSection
     {
-        public string msp2materials;
+        public string BSP2Materials { get; }
 
         public BSP2MaterialsSection(BinaryReader binaryReader, int blobLength)
         {
             char[] chars = binaryReader.ReadChars(blobLength);
 
-            msp2materials = new string(chars);
+            BSP2Materials = new string(chars);
         }
     }
 }

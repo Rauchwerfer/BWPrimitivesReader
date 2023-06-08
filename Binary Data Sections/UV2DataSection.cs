@@ -5,13 +5,12 @@ using System.Numerics;
 namespace BWPrimitivesReader.BinaryDataSections
 {
     /// <summary>
-    /// The section with UV2 data. 
+    /// The section with second UV data. 
     /// </summary>
     [Serializable]
     public class UV2DataSection : BinSection
     {
-        private readonly Vector2[] _uv2;
-        public Vector2[] UV1 => _uv2;
+        public Vector2[] SecondUV { get; }
 
         public UV2DataSection(BinaryReader binaryReader, int numberOfVertices)
         {
@@ -73,18 +72,18 @@ namespace BWPrimitivesReader.BinaryDataSections
                     uv2list[j] = new Vector2(u, 1 - v);
                 }
 
-                _uv2 = uv2list;
+                SecondUV = uv2list;
             }
             else /*if (uv2ds.uv2_subname == "uv2_None")*/
             {
-                _uv2 = new Vector2[numberOfVertices];
+                SecondUV = new Vector2[numberOfVertices];
 
                 for (int j = 0; j < numberOfVertices; j++)
                 {
                     float u = binaryReader.ReadSingle();
                     float v = binaryReader.ReadSingle();
 
-                    _uv2[j] = new Vector2(u, 1 - v);
+                    SecondUV[j] = new Vector2(u, 1 - v);
                 }
             }
         }

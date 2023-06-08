@@ -5,8 +5,7 @@ namespace BWPrimitivesReader.BinaryDataSections
 {
     public abstract class BinSection
     {
-        protected string _format = string.Empty;
-        public string Format => _format;
+        public string Format { get; private set; } = string.Empty;
 
         protected void ReadFormat(BinaryReader binaryReader)
         {
@@ -19,7 +18,7 @@ namespace BWPrimitivesReader.BinaryDataSections
                 if (formatBytes[i] == 0x00) { stringEndPos = i; break; }
             }
 
-            _format = Encoding.UTF8.GetString(formatBytes, 0, stringEndPos);
+            Format = Encoding.UTF8.GetString(formatBytes, 0, stringEndPos);
         }
     }
 }

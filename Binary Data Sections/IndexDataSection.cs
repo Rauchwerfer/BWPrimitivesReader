@@ -12,20 +12,15 @@ namespace BWPrimitivesReader.BinaryDataSections
     [Serializable]
     public class IndexDataSection : BinSection
     {
-        private int _numberOfIndices = 0;
-        public int NumberOfIndices => _numberOfIndices;
-
-        private BWPrimitiveGroupData[] _rawPrimitiveData;
-
-        public BWPrimitiveGroupData[] PrimitiveData => _rawPrimitiveData;
-
-        public readonly List<int> indices = new List<int>();
+        public int NumberOfIndices { get; private set; } = 0;
+        public BWPrimitiveGroupData[] PrimitiveData { get; private set; } = Array.Empty<BWPrimitiveGroupData>();
+        public int[] Indices { get; private set; } = Array.Empty<int>();
 
         public IndexDataSection(BinaryReader binaryReader)
         {
             ReadFormat(binaryReader);
 
-            switch (_format)
+            switch (Format)
             {
                 case "list":
                     ReadIndexData(binaryReader, 2);
@@ -38,14 +33,15 @@ namespace BWPrimitivesReader.BinaryDataSections
 
         private void ReadIndexData(BinaryReader binaryReader, int uintLen)
         {
-            _numberOfIndices = binaryReader.ReadInt32();
+            List<int> indices = new List<int>();
+            NumberOfIndices = binaryReader.ReadInt32();
 
             int number_of_primitive_groups = binaryReader.ReadInt32();
 
-            byte[] raw_index_data = binaryReader.ReadBytes(_numberOfIndices * uintLen);
+            byte[] raw_index_data = binaryReader.ReadBytes(NumberOfIndices * uintLen);
 
 
-            _rawPrimitiveData = new BWPrimitiveGroupData[number_of_primitive_groups];
+            PrimitiveData = new BWPrimitiveGroupData[number_of_primitive_groups];
 
             for (int i = 0; i < number_of_primitive_groups; i++)
             {
@@ -54,7 +50,7 @@ namespace BWPrimitivesReader.BinaryDataSections
                 int start_vrtx = binaryReader.ReadInt32();
                 int num_of_vrtcs = binaryReader.ReadInt32();
 
-                _rawPrimitiveData[i] = new BWPrimitiveGroupData(start_idx, num_of_primtvs, start_vrtx, num_of_vrtcs);
+                PrimitiveData[i] = new BWPrimitiveGroupData(start_idx, num_of_primtvs, start_vrtx, num_of_vrtcs);
             }
 
             using (MemoryStream ms = new MemoryStream(raw_index_data))
@@ -83,32 +79,29 @@ namespace BWPrimitivesReader.BinaryDataSections
                     }
                 }
             }
+
+            Indices = indices.ToArray();
         }
 
         [Serializable]
         public class BWPrimitiveGroupData
         {
-            private readonly int _start_idx;
-            private readonly int _num_of_primtvs;
-            private readonly int _start_vrtx;
-            private readonly int _num_of_vrtcs;
+            public int StartIndex { get; }
+            public int NumberOfPrimitives { get; }
+            public int StartVertex { get; }
+            public int NumberOfVertices { get; }
 
-            public int StartIndex => _start_idx;
-            public int NumberOfPrimitives => _num_of_primtvs;
-            public int StartVertex => _start_vrtx;
-            public int NumberOfVertices => _num_of_vrtcs;
-
-            public BWPrimitiveGroupData(int start_idx, int num_of_primtvs, int start_vrtx, int num_of_vrtcs)
+            public BWPrimitiveGroupData(int startIdx, int numOfPrimtvs, int startVrtx, int numOfVrtcs)
             {
-                _start_idx = start_idx;             // First index used by this group of triangles.
-                _num_of_primtvs = num_of_primtvs;   // Number of triangles rendered in this group
-                _start_vrtx = start_vrtx;           // First vertex used by the triangles in this group.
-                _num_of_vrtcs = num_of_vrtcs;       // Number of vertices used by the triangles in this group
+                StartIndex = startIdx;             // First index used by this group of triangles.
+                NumberOfPrimitives = numOfPrimtvs;   // Number of triangles rendered in this group
+                StartVertex = startVrtx;           // First vertex used by the triangles in this group.
+                NumberOfVertices = numOfVrtcs;       // Number of vertices used by the triangles in this group
             }
 
             public override string ToString()
             {
-                return $"start_idx {_start_idx}; num_of_primtvs = {_num_of_primtvs}; start_vrtx = {_start_vrtx};  num_of_vrtcs = {_num_of_vrtcs}; {Environment.NewLine}";
+                return $"StartIndex {StartIndex}; NumberOfPrimitives = {NumberOfPrimitives}; StartVertex = {StartVertex};  NumberOfVertices = {NumberOfVertices};";
             }
         }
     }
